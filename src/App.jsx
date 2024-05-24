@@ -1,42 +1,55 @@
-import { useState } from "react";
-
+import { useEffect, useState } from "react";
+import axios from "axios";
 import "./App.css";
-import { getBoard, postBoard } from "./api/boardApi";
-
+const iState = {
+  name: "",
+  text: "",
+};
 function App() {
-  const [smPloject, setsmPloject] = useState([]);
-  const [name, setName] = useState(null);
-  const [text, setText] = useState(null);
-
-  const submit = async () => {
-    const body = { name, text };
-    await postBoard(body);
+  const [state, setState] = useState({ ...iState });
+  const [boards, setBoards] = useState([]);
+  const onChangeHandler = (e) => {
+    const { name, value } = e.target;
+    setState({ ...state, [name]: value });
   };
-
-  const fetchdata = async () => {
-    try {
-      const response = await getBoard();
-      console.log(response);
-      setsmPloject(response.data);
-    } catch (error) {}
+  const onSubmitHandler = async () => {
+    const res = await axios.post("http://104.198.228.54:9200/api/v1/sm", state);
+    if (res.status === 201) {
+      getAllBoards();
+      setState({ ...iState });
+    }
   };
-
+  const getAllBoards = async () => {
+    const res = await axios.get("http://104.198.228.54:9200/api/v1/sm");
+    if (res.data) setBoards(res.data);
+  };
+  useEffect(() => {
+    getAllBoards();
+  }, []);
   return (
     <>
       <div>
         <input
           placeholder="name"
-          onChange={(e) => setName(e.target.value)}
-        ></input>
-      </div>
-      <div>
+          name="name"
+          value={state.name}
+          onChange={onChangeHandler}
+        />
         <input
           placeholder="text"
-          onCanPlay={(e) => setText(e.target.value)}
-        ></input>
+          name="text"
+          value={state.text}
+          onChange={onChangeHandler}
+        />
+        <br />
+        <button onClick={onSubmitHandler}>submit</button>
       </div>
       <div>
-        <button onClick={submit}>submit</button>
+        {boards.map((data) => (
+          <div key={data.id}>
+            <b>{data.name}</b> : {data.text}
+          </div>
+        ))}
       </div>
     </>
   );
