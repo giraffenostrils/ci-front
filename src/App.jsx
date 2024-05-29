@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import "./App.css";
-
 const iState = {
   name: "",
   text: "",
@@ -14,14 +13,14 @@ function App() {
     setState({ ...state, [name]: value });
   };
   const onSubmitHandler = async () => {
-    const res = await axios.post("http://104.198.228.54:9200/api/v1/sm", state);
+    const res = await axios.post("http://35.192.168.31:8080/api/boards", state);
     if (res.status === 201) {
       getAllBoards();
       setState({ ...iState });
     }
   };
   const getAllBoards = async () => {
-    const res = await axios.get("http://104.198.228.54:9200/api/v1/sm");
+    const res = await axios.get("http://35.192.168.31:8080/api/boards");
     if (res.data) setBoards(res.data);
   };
   useEffect(() => {
